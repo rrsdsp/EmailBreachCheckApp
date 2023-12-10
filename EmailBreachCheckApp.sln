@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailBreachCheckApi", "EmailBreachCheckApi\EmailBreachCheckApi.csproj", "{7E1597A1-BB9B-46B5-B96D-074AC25E4CD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailBreachCheckFrontEnd", "EmailBreachCheckFrontEnd\EmailBreachCheckFrontEnd.csproj", "{48ECE884-46A3-4586-9D9B-698E266916FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E1597A1-BB9B-46B5-B96D-074AC25E4CD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E1597A1-BB9B-46B5-B96D-074AC25E4CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E1597A1-BB9B-46B5-B96D-074AC25E4CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E1597A1-BB9B-46B5-B96D-074AC25E4CD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48ECE884-46A3-4586-9D9B-698E266916FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48ECE884-46A3-4586-9D9B-698E266916FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48ECE884-46A3-4586-9D9B-698E266916FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48ECE884-46A3-4586-9D9B-698E266916FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8677F5EF-4EB8-46B6-9CD3-960D537569B5}
+	EndGlobalSection
+EndGlobal
