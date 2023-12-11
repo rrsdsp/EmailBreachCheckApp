@@ -1,5 +1,4 @@
 ﻿using Orleans;
-using System.Threading.Tasks;
 
 namespace EmailBreachCheckApi
 {
@@ -8,8 +7,5 @@ namespace EmailBreachCheckApi
         Task<bool> GetData(string value);
         Task<bool> SaveData(string value);
         Task<bool> ClearStorage();
-        
-
-
     }
 }

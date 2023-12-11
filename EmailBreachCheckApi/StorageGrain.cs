@@ -1,12 +1,7 @@
 ﻿using EmailBreachCheckApi.Controllers;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using Orleans;
-using Orleans.Persistence;
 using Orleans.Providers;
 using Orleans.Runtime;
-using System;
-using System.Threading.Tasks;
 
 namespace EmailBreachCheckApi
 {
@@ -42,25 +37,38 @@ namespace EmailBreachCheckApi
             {
                 List<string> mailList = new List<string>() { "No record" };
                 _emailState.State.EmailAddresses = mailList;
-            }  
+            }
+
+            // Set up a timer to periodically persist state
+            timer = RegisterTimer(PersistState, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         }
 
         public override async Task OnDeactivateAsync()
         {
+            // Dispose of the timer when the grain deactivates
+            timer.Dispose();
             await base.OnDeactivateAsync();
         }
 
         public async Task<List<string>> GetAllData()
         {
-            await _emailState.ReadStateAsync();
-            return _emailState.State.EmailAddresses;
+            try
+            {
+                await _emailState.ReadStateAsync();
+                return _emailState.State.EmailAddresses;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error! - {ex.Message}");
+                return null;
+            }
         }
         public async Task<bool> GetData(string value)
         {
             try
             {
                 await _emailState.ReadStateAsync();
-                return IsInTheList(_emailState.State.EmailAddresses, value) == true ? true : false;    
+                return IsInList(_emailState.State.EmailAddresses, value) == true ? true : false;
             }
             catch (Exception ex)
             {
@@ -69,11 +77,12 @@ namespace EmailBreachCheckApi
             }
         }
 
-        public async Task<bool> StoreData(List<string> value)
+        public async Task<bool> StoreData(List<string> valueList)
         {
             try
             {
-                _emailState.State.EmailAddresses = value;
+                await _emailState.ReadStateAsync();
+                _emailState.State.EmailAddresses = valueList;
                 await _emailState.WriteStateAsync();
                 return true;
             }
@@ -91,22 +100,30 @@ namespace EmailBreachCheckApi
                 await _emailState.ClearStateAsync();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error! - {ex.Message}");
                 return false;
             }
-            
         }
 
-        
-
-        private bool IsInTheList(List<string> emaislList, string address)
+        private async Task PersistState(object _)
         {
             try
             {
-                var result = emaislList.Contains(address) ? true : false;
-                return result;
+                await _emailState.WriteStateAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error! - {ex.Message}");
+            }
+        }
+
+        private bool IsInList(List<string> emaislList, string address)
+        {
+            try
+            {
+                return emaislList.Contains(address) ? true : false;
             }
             catch (Exception ex)
             {

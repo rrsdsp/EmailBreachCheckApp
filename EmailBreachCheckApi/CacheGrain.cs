@@ -1,13 +1,7 @@
 ﻿using EmailBreachCheckApi.Controllers;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using Orleans;
-using Orleans.Persistence;
 using Orleans.Providers;
 using Orleans.Runtime;
-using System;
-using System.Threading.Tasks;
 
 
 namespace EmailBreachCheckApi
@@ -19,10 +13,9 @@ namespace EmailBreachCheckApi
     }
 
     [StorageProvider(ProviderName = "cacheStorage")]
-    
+
     public class CacheGrain : Grain<EmailAddressState>, ICacheGrain
     {
-
         private readonly ILogger<EmailsController> _logger;
         private IDisposable timer;
         private readonly IPersistentState<EmailAddressState> _emailState;
@@ -43,89 +36,89 @@ namespace EmailBreachCheckApi
 
             //// Load state on activation
             await ReadStateAsync();
-            // Set a default value if no state is loaded
-            if (_emailState.State.EmailAddresses == null)
-            {
-                List<string> mailList = new List<string>() { "No record" };
-                _emailState.State.EmailAddresses = mailList;
-            }
-                
+            //// Load state from Azure          
+            var dataList = await _clusterClient.GetGrain<IStorageGrain>("azure").GetAllData();
+            _emailState.State.EmailAddresses = dataList;
+            await _emailState.WriteStateAsync();
 
-            
-
-            // Set up a timer to periodically persist state
             timer = RegisterTimer(PersistState, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         }
 
         public override async Task OnDeactivateAsync()
         {
-            // Dispose of the timer when the grain deactivates
+
             timer.Dispose();
             await base.OnDeactivateAsync();
         }
 
-        
+
         public async Task<bool> GetData(string value)
-        {          
+        {
             try
             {
                 await _emailState.ReadStateAsync();
-                var addressStatus = IsInTheList(_emailState.State.EmailAddresses, value);
-                if (addressStatus == false)
-                {                   
-;                   var addr = await _clusterClient.GetGrain<IStorageGrain>("azure").GetData(value);
-                    if (addr==false)
-                    {                      
+                var Status = IsInList(_emailState.State.EmailAddresses, value);
+                if (Status == false)
+                {
+                    var addr = await _clusterClient.GetGrain<IStorageGrain>("azure").GetData(value);
+                    if (addr == false)
+                    {
                         return false;
-                    }                                                        
+                    }
                 }
                 var updateList = AddToList(_emailState.State.EmailAddresses, value);
                 _emailState.State.EmailAddresses = updateList;
                 return true;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error! - {ex.Message}");
                 return false;
-            }          
+            }
         }
 
         public async Task<bool> SaveData(string value)
-        {          
+        {
             try
             {
-                var status = IsInTheList(_emailState.State.EmailAddresses, value);
+                await _emailState.ReadStateAsync();
+                var status = IsInList(_emailState.State.EmailAddresses, value);
                 if (status == true)
                 {
                     return false;
                 }
-                _emailState.State.EmailAddresses = AddToList(_emailState.State.EmailAddresses, value);
-                await _emailState.WriteStateAsync(); 
-                return  true;
+                var listStatus = AddToList(_emailState.State.EmailAddresses, value);
+                if (listStatus != null)
+                {
+                    _emailState.State.EmailAddresses = AddToList(_emailState.State.EmailAddresses, value);
+                    await _emailState.WriteStateAsync();
+                }
+
+                return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error! - {ex.Message}");
                 return false;
-            } 
+            }
         }
 
         private async Task PersistState(object _)
         {
             try
             {
-                var result = await _clusterClient.GetGrain<IStorageGrain>("azure").GetAllData();
-                if (result.Count > 0)
+                await _emailState.ReadStateAsync();
+                var status = await _clusterClient.GetGrain<IStorageGrain>("azure").StoreData(_emailState.State.EmailAddresses);
+                if (status == true)
                 {
-                    await _clusterClient.GetGrain<IStorageGrain>("azure").ClearStorage();
+                    _logger.LogInformation("Succesfully stored to Azure Blob service!");
                 }
-                var addEmailAddressStatus = await _clusterClient.GetGrain<IStorageGrain>("azure").StoreData(_emailState.State.EmailAddresses);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Error! - {ex.Message}");
-            }          
+            }
         }
 
         public async Task<bool> ClearStorage()
@@ -142,11 +135,11 @@ namespace EmailBreachCheckApi
             }
 
         }
-        private bool IsInTheList(List<string> emaislList, string address)
+        private bool IsInList(List<string> emailsList, string address)
         {
             try
             {
-                var result = emaislList.Contains(address) ? true : false;
+                var result = emailsList.Contains(address) ? true : false;
                 return result;
             }
             catch (Exception ex)
@@ -169,7 +162,5 @@ namespace EmailBreachCheckApi
                 return null;
             }
         }
-
-        
     }
 }

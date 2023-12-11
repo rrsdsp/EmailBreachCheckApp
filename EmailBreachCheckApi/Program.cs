@@ -1,6 +1,4 @@
-using EmailBreachCheckApi;
 using Orleans.Hosting;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,13 +1,8 @@
 ﻿using EmailBreachCheckFrontEnd.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text;
 using Newtonsoft.Json;
-using System;
-using System.Net;
+using System.Diagnostics;
+using System.Text;
 
 namespace EmailBreachCheckFrontEnd.Controllers
 {
@@ -47,7 +42,7 @@ namespace EmailBreachCheckFrontEnd.Controllers
                     var address = await response.Content.ReadFromJsonAsync<EmailAddress>();
 
                     // Pass the list of email addresses to the view
-                    return View("Index",address);
+                    return View("Index", address);
                 }
                 else
                 {
@@ -90,9 +85,9 @@ namespace EmailBreachCheckFrontEnd.Controllers
                         string responseContent = await response.Content.ReadAsStringAsync();
                         var responseObject = JsonConvert.DeserializeObject<EmailAddress>(responseContent);
                         emailAddress.Response = responseObject.Response;
-                        
+
                         // Redirect to a success page or return a success message
-                        return View("Index",emailAddress);
+                        return View("Index", emailAddress);
                     }
                     else
                     {
@@ -113,7 +108,7 @@ namespace EmailBreachCheckFrontEnd.Controllers
 
         public IActionResult Index(EmailAddress addr)
         {
-         
+
             return View(addr);
         }
 
