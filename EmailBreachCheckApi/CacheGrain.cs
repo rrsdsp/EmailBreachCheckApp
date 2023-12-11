@@ -40,7 +40,7 @@ namespace EmailBreachCheckApi
             _emailState.State.EmailAddresses = dataList;
             await _emailState.WriteStateAsync();
 
-            timer = RegisterTimer(PersistState, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            timer = RegisterTimer(PersistState, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
         }
 
         public override async Task OnDeactivateAsync()
