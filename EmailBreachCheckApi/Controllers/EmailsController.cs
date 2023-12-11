@@ -29,7 +29,7 @@ namespace EmailBreachCheckApi.Controllers
             {
                 var status = await _clusterClient.GetGrain<ICacheGrain>("mailAddresses").GetData(searchString);
 
-                addressObj.Response = status == true ? $"Ok - Email address: {searchString} found!" : $"NotFound - Email address {searchString}";
+                addressObj.Response = status == true ? $"Ok - email address: {searchString} found!" : $"NotFound - email address {searchString}";
                 addressObj.Address = searchString;
 
                 return Ok(addressObj);
@@ -50,7 +50,7 @@ namespace EmailBreachCheckApi.Controllers
             try
             {
                 var Status = await _clusterClient.GetGrain<ICacheGrain>("mailAddresses").SaveData(addr.Address);
-                addr.Response = Status == true ? $"Created - Email address: {addr.Address} created successfully." : $"Conflict - Email address: {addr.Address} already exists!";
+                addr.Response = Status == true ? $"Created - email address: {addr.Address} created successfully." : $"Conflict - email address: {addr.Address} already exists!";
 
                 return Ok(addr);
             }

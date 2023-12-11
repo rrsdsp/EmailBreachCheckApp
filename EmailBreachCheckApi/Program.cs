@@ -1,14 +1,16 @@
 using Orleans.Hosting;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var azureConn=builder.Configuration.GetConnectionString("AzureConnection");
 builder.Host.UseOrleans(builder =>
 {
     builder.UseLocalhostClustering();
     builder.AddMemoryGrainStorage("cacheStorage");
     builder.AddAzureBlobGrainStorage("azureStorage", options =>
     {
-        options.ConfigureBlobServiceClient("DefaultEndpointsProtocol=https;AccountName=rrsddatawesteurope;AccountKey=4kYuh7bzUDLYV9eRqdD6tHsHCWkQ1IZYVCner9C38Tm02XBEnlP9xMHXMKHPI/IUwdVRTAIbZfLS+AStycXjtw==;EndpointSuffix=core.windows.net");
+        options.ConfigureBlobServiceClient(azureConn);
         options.ContainerName = "mails";
     });
 });

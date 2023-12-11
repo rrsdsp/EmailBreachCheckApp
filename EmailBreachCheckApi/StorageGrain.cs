@@ -29,23 +29,19 @@ namespace EmailBreachCheckApi
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-
-            //// Load state on activation
             await ReadStateAsync();
-            // Set a default value if no state is loaded
+            
             if (_emailState.State.EmailAddresses == null)
             {
                 List<string> mailList = new List<string>() { "No record" };
                 _emailState.State.EmailAddresses = mailList;
             }
 
-            // Set up a timer to periodically persist state
             timer = RegisterTimer(PersistState, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         }
 
         public override async Task OnDeactivateAsync()
         {
-            // Dispose of the timer when the grain deactivates
             timer.Dispose();
             await base.OnDeactivateAsync();
         }

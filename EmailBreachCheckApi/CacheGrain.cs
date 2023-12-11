@@ -33,10 +33,9 @@ namespace EmailBreachCheckApi
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-
-            //// Load state on activation
             await ReadStateAsync();
-            //// Load state from Azure          
+            
+            
             var dataList = await _clusterClient.GetGrain<IStorageGrain>("azure").GetAllData();
             _emailState.State.EmailAddresses = dataList;
             await _emailState.WriteStateAsync();
